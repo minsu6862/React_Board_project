@@ -36,9 +36,9 @@ function App() {
       <Navbar onLogout={handleLogout} user={user} />
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/board' element={<Board />} />
-        <Route path='/board/:id' element={<BoardDetail />} />
-        <Route path='/board/write' element={<BoardWrite />} />
+        <Route path='/board' element={<Board user={user}/>} />
+        <Route path='/board/:id' element={<BoardDetail user={user}/>} />
+        <Route path='/board/write' element={<BoardWrite user={user}/>} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login onLogin={setUser} />} />
       </Routes>
