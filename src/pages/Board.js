@@ -6,13 +6,20 @@ import { useNavigate } from "react-router-dom";
 function Board({ user }) {
 
     const [posts, setPosts] = useState([]);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
     const navigate = useNavigate();  // 추가
 
-    //게시판 모든 글 요청
-    const loadPosts = async () => {
+    //게시판 페이징된 글 리스트 요청
+    const loadPosts = async (page = 0) => {
         try {
-            const res = await api.get("/api/board");    //모든글 가져오기 요청
-            setPosts(res.data); //posts->전체 게시글
+            const res = await api.get(`/api/board?page=${page}&size=10`);    //모든글 가져오기 요청
+            setPosts(res.data.posts); //posts->전체 게시글->게시글의 배열
+            setCurrentPage(res.data.currentPage); //현재 페이지 번호
+            setTotalPages(res.data.totalPages); //전체 페이지 수
+            setTotalItems(res.data.totalItems); //모든 글의 갯수
         } catch (err) {
             console.error(err);
         }
@@ -35,8 +42,36 @@ function Board({ user }) {
 
     //처음 로딩될 때 한번만 실행
     useEffect(() => {
-        loadPosts();
-    }, []);
+        loadPosts(currentPage);
+    }, [currentPage]);
+
+    //페이지 번호 그룹 배열 반환 함수(10개까지만 표시)
+    //ex) 총 페이지 수 : 157 -> 총 16 페이지 필요 -> [0 1 2 3 4 5 6 7 8 9]
+    // ▶ -> [10 11 12 13 14 15]
+    const getPageNumbers = () => {
+        const pageGroup = Math.floor(currentPage / 10);  // 페이지 그룹 계산
+        const start = pageGroup * 10;                     // 시작 번호
+        const end = Math.min(start + 10, totalPages);     // 끝 번호
+        const pages = [];
+        for (let i = start; i < end; i++) {
+            pages.push(i);  // 
+        }
+        return pages;
+    };
+
+    // 이전 페이지로 이동 (1페이지씩)
+    const handlePrevPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    // 다음 페이지로 이동 (1페이지씩)
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
     //날짜 format함수
     const formatDate = (dateString) => {
@@ -57,9 +92,9 @@ function Board({ user }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {posts.slice().reverse().map((p, index) => (
+                    {posts.map((p, index) => (
                         <tr key={p.id}>
-                            <td>{posts.length - index}</td>
+                            <td>{totalItems - (currentPage * 10) - index}</td>
                             <td 
                                 className="title-cell"
                                 onClick={() => handlePostClick(p.id)}
@@ -72,6 +107,21 @@ function Board({ user }) {
                     ))}
                 </tbody>
             </table>
+            {/* 페이지 번호와 이동 화살표 출력 */}
+            <div className="pagination">
+                <button onClick={handlePrevPage} disabled={currentPage === 0}>◀</button>
+                {getPageNumbers().map((num) => (
+                    <button 
+                        key={num}
+                        onClick={() => setCurrentPage(num)}
+                        className={currentPage === num ? 'active' : ''}
+                    >
+                        {num + 1}
+                    </button>
+                ))}
+                <button onClick={handleNextPage} disabled={currentPage === totalPages - 1}>▶</button>
+            </div>
+            
             <div className="write-button-container">
                 <button onClick={handleWrite} 
                 className="write-button">글쓰기</button>
