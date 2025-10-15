@@ -59,6 +59,16 @@ function Board({ user }) {
         return pages;
     };
 
+    // 첫 페이지로 이동
+    const handleFirstPage = () => {
+        setCurrentPage(0);
+    };
+
+    // 마지막 페이지로 이동
+    const handleLastPage = () => {
+        setCurrentPage(totalPages - 1);
+    };
+
     // 이전 페이지로 이동 (1페이지씩)
     const handlePrevPage = () => {
         if (currentPage > 0) {
@@ -107,9 +117,20 @@ function Board({ user }) {
                     ))}
                 </tbody>
             </table>
-            {/* 페이지 번호와 이동 화살표 출력 */}
+            
+            {/* 페이징 네비게이션 */}
             <div className="pagination">
-                <button onClick={handlePrevPage} disabled={currentPage === 0}>◀</button>
+                {/* 첫 페이지로 이동 */}
+                <button onClick={handleFirstPage} disabled={currentPage === 0}>
+                    ◀◀
+                </button>
+                
+                {/* 이전 페이지 (1페이지 단위) */}
+                <button onClick={handlePrevPage} disabled={currentPage === 0}>
+                    ◀
+                </button>
+                
+                {/* 페이지 번호들 */}
                 {getPageNumbers().map((num) => (
                     <button 
                         key={num}
@@ -119,9 +140,18 @@ function Board({ user }) {
                         {num + 1}
                     </button>
                 ))}
-                <button onClick={handleNextPage} disabled={currentPage === totalPages - 1}>▶</button>
+                
+                {/* 다음 페이지 (1페이지 단위) */}
+                <button onClick={handleNextPage} disabled={currentPage === totalPages - 1}>
+                    ▶
+                </button>
+                
+                {/* 마지막 페이지로 이동 */}
+                <button onClick={handleLastPage} disabled={currentPage === totalPages - 1}>
+                    ▶▶
+                </button>
             </div>
-            
+
             <div className="write-button-container">
                 <button onClick={handleWrite} 
                 className="write-button">글쓰기</button>

@@ -2,21 +2,22 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axiosConfig";
 import "./BoardDetail.css";
+import "./Comment.css";
 
 function BoardDetail({ user }) {
 
     const navigate = useNavigate();
 
-    const [post, setPost] = useState(null); //해당 글 id로 요청한 글 객체
-    const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태
+    const [post, setPost] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [editTitle, setEditTitle] = useState("");
     const [editContent, setEditContent] = useState("");
     const {id} = useParams();
 
-    const loadPost = async () => {  //특정 글 id로 글 1개
+    const loadPost = async () => {
         try {
             const res = await api.get(`/api/board/${id}`);
-            setPost(res.data);  //특정 글 id 객체
+            setPost(res.data);
             setEditTitle(res.data.title);
             setEditContent(res.data.content);
         } catch (err) {
@@ -73,10 +74,102 @@ function BoardDetail({ user }) {
             });
             alert("글이 수정되었습니다.");
             setIsEditMode(false);
-            loadPost(); // 수정된 내용 다시 불러오기
+            loadPost();
         } catch (err) {
             console.error(err);
             alert("글 수정에 실패했습니다.");
+        }
+    };
+
+    // 댓글 관련 상태
+    const [newComment, setNewComment] = useState("");
+    const [comments, setComments] = useState([]);
+    const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID
+    const [editCommentContent, setEditCommentContent] = useState(""); // 수정 중인 댓글 내용
+
+    // 댓글 목록 불러오기
+    const loadComments = async () => {
+        try {
+            const res = await api.get(`/api/board/${id}/comments`);
+            setComments(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // 댓글 등록
+    const handleCommentSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!user) {
+            alert("댓글 작성은 로그인이 필요합니다.");
+            return;
+        }
+
+        if (!newComment.trim()) {
+            alert("댓글 내용을 입력해주세요.");
+            return;
+        }
+
+        try {
+            await api.post(`/api/board/${id}/comments`, {
+                content: newComment
+            });
+            setNewComment("");
+            loadComments(); // 댓글 목록 새로고침
+            alert("댓글이 등록되었습니다.");
+        } catch (err) {
+            console.error(err);
+            alert("댓글 등록에 실패했습니다.");
+        }
+    };
+
+    // 댓글 수정 모드 시작
+    const startEditComment = (commentId, content) => {
+        setEditingCommentId(commentId);
+        setEditCommentContent(content);
+    };
+
+    // 댓글 수정 취소
+    const cancelEditComment = () => {
+        setEditingCommentId(null);
+        setEditCommentContent("");
+    };
+
+    // 댓글 수정 완료
+    const handleCommentEdit = async (commentId) => {
+        if (!editCommentContent.trim()) {
+            alert("댓글 내용을 입력해주세요.");
+            return;
+        }
+
+        try {
+            await api.put(`/api/board/${id}/comments/${commentId}`, {
+                content: editCommentContent
+            });
+            setEditingCommentId(null);
+            setEditCommentContent("");
+            loadComments(); // 댓글 목록 새로고침
+            alert("댓글이 수정되었습니다.");
+        } catch (err) {
+            console.error(err);
+            alert("댓글 수정에 실패했습니다.");
+        }
+    };
+
+    // 댓글 삭제
+    const handleCommentDelete = async (commentId) => {
+        if (!window.confirm("정말 댓글을 삭제하시겠습니까?")) {
+            return;
+        }
+
+        try {
+            await api.delete(`/api/board/${id}/comments/${commentId}`);
+            loadComments(); // 댓글 목록 새로고침
+            alert("댓글이 삭제되었습니다.");
+        } catch (err) {
+            console.error(err);
+            alert("댓글 삭제에 실패했습니다.");
         }
     };
 
@@ -86,9 +179,10 @@ function BoardDetail({ user }) {
         return date.toLocaleDateString('ko-KR');
     };
 
-    // 컴포넌트 마운트 시 글 불러오기
+    // 컴포넌트 마운트 시 글과 댓글 불러오기
     useEffect(() => {
         loadPost();
+        loadComments();
     }, [id]);
 
     // 로딩 중
@@ -134,7 +228,6 @@ function BoardDetail({ user }) {
 
             <div className="button-group">
                 <button onClick={() => navigate("/board")}>글 목록</button>
-                {/* 로그인한 유저가 본인이 쓴 글만 수정/삭제 가능 */}
                 {user && post.author.username === user && (
                     <>
                         <button onClick={handleEdit}>수정</button>
@@ -142,6 +235,66 @@ function BoardDetail({ user }) {
                     </>
                 )}
             </div>
+
+            {/* 댓글 영역 시작 */}
+            <div className="comment-section">
+                {/* 댓글 입력 폼 */}
+                <h3>댓글 쓰기</h3>
+                <form onSubmit={handleCommentSubmit} className="comment-form">
+                    <textarea 
+                        placeholder="댓글을 입력하세요." 
+                        value={newComment} 
+                        onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <button type="submit" className="comment-button">등록</button>
+                </form>
+
+                {/* 기존 댓글 리스트 */}
+                <h3>댓글 목록 ({comments.length})</h3>
+                <ul className="comment-list">
+                    {comments.map((c) => (
+                        <li key={c.id} className="comment-item">
+                            <div className="comment-header">
+                                <span className="comment-author">
+                                    {c.author.username}
+                                </span>
+                                <span className="comment-date">
+                                    {formatDate(c.createDate)}
+                                </span>
+                            </div>
+                            
+                            {/* 댓글 수정 모드 */}
+                            {editingCommentId === c.id ? (
+                                <div className="comment-edit-mode">
+                                    <textarea 
+                                        value={editCommentContent}
+                                        onChange={(e) => setEditCommentContent(e.target.value)}
+                                        className="comment-edit-textarea"
+                                    />
+                                    <div className="button-group">
+                                        <button onClick={() => handleCommentEdit(c.id)}>수정 완료</button>
+                                        <button onClick={cancelEditComment} className="cancel-btn">취소</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                // 댓글 조회 모드
+                                <>
+                                    <div className="comment-content">
+                                        {c.content}
+                                    </div>
+                                    {user && c.author.username === user && (
+                                        <div className="button-group">
+                                            <button onClick={() => startEditComment(c.id, c.content)}>수정</button>
+                                            <button onClick={() => handleCommentDelete(c.id)} className="delete-btn">삭제</button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            {/* 댓글 영역 끝 */}
         </div>
     );
 }

@@ -58,3 +58,45 @@ h2 {
     background: #0263b8;
     color: white;   
 }
+
+/* 페이징 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0;
+}
+
+.pagination button {
+    min-width: 35px;
+    height: 35px;
+    padding: 8px 12px;
+    border: 1px solid #dddddd;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #f4f4f4;
+    border-color: #1e88e5;
+    color: #1e88e5;
+}
+
+.pagination button.active {
+    background-color: #1e88e5;
+    color: white;
+    border-color: #1e88e5;
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    background-color: #f9f9f9;
+    color: #ccc;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
