@@ -1,13 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
-import './App.css';
-import Navbar from './component/Navbar';
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import Navbar from "./component/Navbar";
 import Home from "./pages/Home";
 import Board from "./pages/Board";
 import BoardDetail from "./pages/BoardDetail";
 import BoardWrite from "./pages/BoardWrite";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import api from "./api/axiosConfig";
 
 function App() {
@@ -20,27 +20,27 @@ function App() {
     } catch {
       setUser(null);
     }
-  }
+  };
 
   useEffect(() => {
     checkUser();
-  },[]);
+  }, []);
 
   const handleLogout = async () => {
     await api.post("/api/auth/logout");
     setUser(null);
-  }
+  };
 
   return (
-    <div className='App'>
+    <div className="App">
       <Navbar onLogout={handleLogout} user={user} />
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/board' element={<Board user={user}/>} />
-        <Route path='/board/:id' element={<BoardDetail user={user}/>} />
-        <Route path='/board/write' element={<BoardWrite user={user}/>} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/login' element={<Login onLogin={setUser} />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/board" element={<Board user={user} />} />
+        <Route path="/board/:id" element={<BoardDetail user={user} />} />
+        <Route path="/board/write" element={<BoardWrite user={user} />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login onLogin={setUser} />} />
       </Routes>
     </div>
   );

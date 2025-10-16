@@ -1,71 +1,71 @@
 /* 글쓰기 컨테이너 */
 .write-container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .write-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .write-container form {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 제목 입력 */
 .write-container input[type="text"] {
-    padding: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    font-size: 14px;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 14px;
 }
 
 /* 내용 입력 */
 .write-container textarea {
-    padding: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    min-height: 300px;
-    resize: vertical;
-    font-family: inherit;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  min-height: 300px;
+  resize: vertical;
+  font-family: inherit;
 }
 
 /* 버튼 그룹 */
 .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .button-group button {
-    padding: 10px 20px;
-    background-color: #1e88e5;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    min-width: 100px;
+  padding: 10px 20px;
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 100px;
 }
 
 .button-group button:hover {
-    background-color: #0263b8;
+  background-color: #0263b8;
 }
 
 /* 취소 버튼 스타일 */
 .button-group button[type="button"] {
-    background-color: #757575;
+  background-color: #757575;
 }
 
 .button-group button[type="button"]:hover {
-    background-color: #616161;
+  background-color: #616161;
 }
