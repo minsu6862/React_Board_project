@@ -86,11 +86,12 @@ function BoardDetail({ user }) {
     const [comments, setComments] = useState([]);
     const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID
     const [editCommentContent, setEditCommentContent] = useState(""); // 수정 중인 댓글 내용
+    const [commentErrors, setCommentErrors] = useState({});
 
     // 댓글 목록 불러오기
     const loadComments = async () => {
         try {
-            const res = await api.get(`/api/board/${id}/comments`);
+            const res = await api.get(`/api/comments/${id}`);
             setComments(res.data);
         } catch (err) {
             console.error(err);
@@ -106,21 +107,22 @@ function BoardDetail({ user }) {
             return;
         }
 
-        if (!newComment.trim()) {
-            alert("댓글 내용을 입력해주세요.");
-            return;
-        }
-
         try {
-            await api.post(`/api/board/${id}/comments`, {
+            await api.post(`/api/comments/${id}`, {
                 content: newComment
             });
             setNewComment("");
-            loadComments(); // 댓글 목록 새로고침
+            setCommentErrors({}); // 성공 시 에러 초기화
+            loadComments();
             alert("댓글이 등록되었습니다.");
         } catch (err) {
-            console.error(err);
-            alert("댓글 등록에 실패했습니다.");
+            if (err.response && err.response.status === 400) {
+                // 백엔드 유효성 검증 에러 처리
+                setCommentErrors(err.response.data);
+            } else {
+                console.error("댓글 등록에 실패했습니다:", err);
+                alert("댓글 등록에 실패했습니다.");
+            }
         }
     };
 
@@ -144,7 +146,7 @@ function BoardDetail({ user }) {
         }
 
         try {
-            await api.put(`/api/board/${id}/comments/${commentId}`, {
+            await api.put(`/api/comments/${id}/${commentId}`, {
                 content: editCommentContent
             });
             setEditingCommentId(null);
@@ -164,7 +166,7 @@ function BoardDetail({ user }) {
         }
 
         try {
-            await api.delete(`/api/board/${id}/comments/${commentId}`);
+            await api.delete(`/api/comments/${id}/${commentId}`);
             loadComments(); // 댓글 목록 새로고침
             alert("댓글이 삭제되었습니다.");
         } catch (err) {
@@ -246,6 +248,7 @@ function BoardDetail({ user }) {
                         value={newComment} 
                         onChange={(e) => setNewComment(e.target.value)}
                     />
+                    {commentErrors.content && <p style={{color: "red", fontSize: "13px", marginTop: "5px"}}>{commentErrors.content}</p>}
                     <button type="submit" className="comment-button">등록</button>
                 </form>
 
